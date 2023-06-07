@@ -12,10 +12,10 @@
 // @namespace    http://www.github.com/tandt.posta.sk/
 // @description  Changes plain text with link on tandt.posta.sk page.
 // @author       papo
-// @version      1.0.0
+// @version      1.0.1
 // @license      GPLv2
 
-// @match          *://tandt.posta.sk/
+// @match          *://tandt.posta.sk/*
 // @match          *://www.posta.sk/*
 
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=posta.sk
