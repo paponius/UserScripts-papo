@@ -14,3 +14,6 @@ and communication between them.
 
 ### Install in GM
 https://github.com/paponius/papo-userscripts/raw/master/GM/tandt.posta.sk.user.js
+
+The **tandt.posta.sk.js** does not work with GreaseMonkey, only with alternatives (e.g. TamperMonkey) because of this bug/limitation.
+https://github.com/greasemonkey/greasemonkey/issues/2574
