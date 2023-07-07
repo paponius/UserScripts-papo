@@ -1,10 +1,21 @@
 # papo userscripts
  
+## keep alive
+Pings a server, to stay logged-in.
+
+### Useful re-usable parts
+
+injected element hovering over the page with a status display/control
+
+### Install in GM
+https://github.com/paponius/papo-userscripts/raw/master/GM/keepalive.user.js
+
+
 ## tandt.posta.sk.js
 Changes plain text with link to real clickable 'A' element
 modifies URI to represent the currently selected tracking
 
-### Examples of a code for:
+### Useful re-usable parts
 
 MutationObserver
 
