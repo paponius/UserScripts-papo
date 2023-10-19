@@ -1,9 +1,10 @@
 // ==UserScript==
-// @name         Workaround for Google I'm Feeling Lucky Redirect
-// @namespace    http://qria.net/
-// @version      0.1
+// @name         Google I'm Feeling Lucky Redirect Workaround
+// @namespace    https://github.com/paponius/papo-userscripts/
+// namespace-was http://qria.net/
+// @version      0.2
 // @description  Immediately redirects when google prompts 'redirection notice'. Used to circumvent google pestering you when querying with I'm Feeling Lucky feature.
-// @author       Qria
+// @author       paponius (mod from Qria)
 // @include      https://www.google.com/url?*
 // @grant        none
 // ==/UserScript==
