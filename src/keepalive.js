@@ -5,13 +5,18 @@
 (function() {
 'use strict';
 
-if (window.top !== window.self) { // determine if in an iframe
-	console.log('keepalive.js: Running in an iFrame');
+var DEBUG = ( GM && GM.info.script.name.indexOf('DEBUG') !== -1 );
+
+if (window.top !== window.self) { // determine if running in an iframe
+	if (DEBUG) { console.log('keepalive.js: Attempted to start in an iFrame'); }
 	return;
 }
 
+if (DEBUG) { console.log('keepalive.js: GM_info', GM_info); }
+
 const method = 2;
-const minutesRefresh = 14;
+var minutesRefresh = 14;
+if (DEBUG) { minutesRefresh = 1; }
 
 var statusCur = statusWin('Keep-alive', state => { if (state) { pinger(true); } else { pinger(false); } });
 pinger(statusCur);
@@ -89,21 +94,22 @@ function statusWin(strMessage, callBack) {
 // define e.g.: const minutesRefresh = 14;
 var initPingDone;
 var tm;
-function pinger(statusCur) {
+function pinger(onOFF) {
 	var reloadIframe;
 	var keepAlive;
 	var refreshTime;
 
 	if (! initPingDone) { initPinger(); }
 
-	// todo: init (on first run), ON/OFF condition blocks
-	if (statusCur) {
+	if (onOFF) {
+		if (DEBUG) { console.log('keepalive.js: Enabling'); }
 		if (method === 1) { // not tested
 			tm = setInterval(keepAlive, minutesRefresh * 60 * 1000);
 		} else if (method === 2) {
 			tm = setTimeout(reloadIframe, refreshTime);
 		}
 	} else {
+		if (DEBUG) { console.log('keepalive.js: Disabling'); }
 		if (method === 1) { // not tested
 			clearInterval(tm);
 		} else if (method === 2) {
@@ -120,7 +126,7 @@ function pinger(statusCur) {
 	    };
 
 	} else if (method === 2) {
-	    console.log('The session for this site will be extended automatically via userscript.');
+	    if (DEBUG) { console.log('keepalive.js: The session for this site will be extended automatically via userscript.'); }
 
 	    var minute = 60*1000;
 	    refreshTime = minutesRefresh * minute;
@@ -139,7 +145,7 @@ function pinger(statusCur) {
 	        var lastRefresh = localStorage.getItem('keep_alive_lastRefresh');
 	        var timeSinceLastRefresh = time - lastRefresh;
 	        if (!lastRefresh || timeSinceLastRefresh > refreshTime - minute) {
-	            console.log('Auto-extending session');
+	            if (DEBUG) { console.log('keepalive.js: Auto-extending session'); }
 	            iframe.src = src + time;
 	            localStorage.setItem('keep_alive_lastRefresh',time);
 	            tm = setTimeout(reloadIframe, refreshTime);
@@ -149,7 +155,7 @@ function pinger(statusCur) {
 	                iframe.src='about:blank';
 	            },10000);
 	        }else{
-	            console.log('Another tab/window probably refreshed the session, waiting a bit longer');
+	            if (DEBUG) { console.log('keepalive.js: Another tab/window probably refreshed the session, waiting a bit longer'); }
 	            tm = setTimeout(reloadIframe, refreshTime - timeSinceLastRefresh - minute);
 	        }
 	    };
