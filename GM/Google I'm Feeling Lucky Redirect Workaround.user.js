@@ -1,70 +1,93 @@
 // ==UserScript==
 // @name         Google I'm Feeling Lucky Redirect Workaround
 // @namespace    https://github.com/paponius/papo-userscripts/
-// namespace-was http://qria.net/
-// @version      0.2
+// @version      0.3
 // @description  Immediately redirects when google prompts 'redirection notice'. Used to circumvent google pestering you when querying with I'm Feeling Lucky feature.
-// @author       paponius (mod from Qria)
+// @author       paponius
 // @include      https://www.google.com/url?*
 // @grant        none
 // ==/UserScript==
 
-(function() {
-    'use strict';
+/* jshint esversion: 8 */
+/* jshint -W014: true */ // Misleading line break before '||' and '&&'.
 
-    function getJsonFromUrl() {
-        // From: https://stackoverflow.com/a/8486188
-        const url = location.search;
-        const query = url.substr(1);
-        const result = {};
-        query.split("&").forEach(function(part) {
-            var item = part.split("=");
-            result[item[0]] = decodeURIComponent(item[1]);
-        });
-        return result;
-    }
+(async function() {
+	'use strict';
 
-    /* 
-     Must not allow redirect from this code if the query does contain an empty 'q' parameter. It causes an error.
-     This happens when opening a link from picture results, but sometimes also from normal web results. See examples below.
+	var config = {
+		// empty sites array means, this will force redirect for all sites
+		sites: [
+			// 'imdb.com'
+		],
+		delay: 2000 // in ms
+	};
 
-     Should not try to redirect from this code if the query contains google signature, as it will be redirected without stopping on the notice.
+	// From: https://stackoverflow.com/a/8486188
+	function parseURI() {
+		const url = location.search;
+		const query = url.substr(1);
+		const result = {};
+		query.split("&").forEach(function(part) {
+			var item = part.split("=");
+			result[item[0]] = decodeURIComponent(item[1]);
+		});
+		return result;
+	}
 
-       Using this workaround you also circumvent the protection from malicious or hacked web pages,
-     The redirect notice stops you from clicking on a google.com/url?q=... link and ending up on a different page. (e.g.bogus)
-     You probably want to use this workaround for search plugins or your own browser extension.
-     Check if redirected domain is one of allowed by you. As an example in disabled code shows.
+	function sleep(ms) {
+		return new Promise(resolve => setTimeout(resolve, ms));
+	}
 
-     parameters google uses on redirection URIs and which might be important with redirection:
-     iflsig - holds the signature from Google to authenticate its own redirects and avoid the notice.
-           I think it authenticates only redirects between its own web pages.
-     psig - probably the same/similar as iflsig. A redirect from google picture results has this.
-     ved - referrer, does not make sense to use here.
-     ust - a number, unknown meaning to me
-     usg - [a-Z0-9_] unknown meaning to me
-     url - a page to redirect to. Is 'url' a new version/substitute for 'q'?
-     q - a page to redirect to. When url parameter is present, there is also an empty 'q'
-     Is 'q' used if the redirect is external (from Google)? Or are they just old/new parameters?
-        */
+	var uriParams = parseURI();
+	if (!uriParams.iflsig && !uriParams.psig && uriParams.q !== ''
+		&& (config.sites.length === 0
+			|| config.sites.some(site => uriParams.q.indexOf(site) !== -1)
+			)
+		) {
+		await sleep(config.delay);
+		location.href = uriParams.q;
+	}
+})();
 
-        var uriJson = getJsonFromUrl();
-    if (!uriJson.iflsig && !uriJson.psig && uriJson.q !== ''
+/*
 
-// use this to check the destination domain
-//        && ( uriJson.q.indexOf('imdb.com') !== -1 ||
-//             uriJson.q.indexOf('another-site.com') !== -1 )
+ * Sleep
+   Sometimes cookies are not sent with the request. This will result in opening a generic page,
+   e.g. IMDb not signed-in, in different that desired language, etc.
+   Not sure why and if it's Firefox only problem. Waiting couple of seconds helps resolve this issue.
 
-       ) { window.location = uriJson.q; }
+ * The issue with original GM script and with similar GM solutions
+   * Google does not always stop at the Redirection Notice, this script must detect such cases and
+	 not force the redirection.
+	 * When the result is on a Google affiliated site, or otherwise approved.
+	   In such case *iflsig* parameter is present in URI.
+	 * The same for Picture Search results and *psig* parameter.
+   * The parameter *q* might be empty. (read below)
 
+ * The purpose of the Redirection Notice is to avoid redirecting to possible bogus and fraudulent
+   web pages. It might not be desired to circumvent this safety measure in all cases.
+   If this is required only for a limited set of target web sites, create a list in config.sites array.
 
-   // window.location = getJsonFromUrl().q;
-  /* examples where a statement on a line above without a condition was causing an error
-   these example links worked only 5 minutes or so, until the signature was changed
+ * Parameters Google uses Redirection Notice URI
+	iflsig: A Google signature which authenticates trusted target redirects.
+	psig:   As iflsig, but for Google Picture Search.
+	ved:    Referrer
+	ust:    Did not investigate the meaning. [Number]
+	usg:    Did not investigate the meaning. [a-Z0-9_]
+	url:    The target URI. (A new version/substitute for 'q'?)
+	q:      The target URI. When *url* is used, *q* is present, but empty.
 
-   * from images results
+ * Examples and the format of the *I Feel Lucky* search
+   https://www.google.com/search?q=site:imdb.com+matrix&btnI=
+
+   I don't remember how I initialized the *I Feel Lucky Search* and how following links were produced.
+   It was 4 years ago from now 2023.
+   These links worked only around 5 minutes, until the signature was changed.
+
+   From images results
    https://www.google.com/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&ved=2ahUKEwir6oWy3aHmAhWLZlAKHZTADEAQjhx6BAgBEAI&url=https%3A%2F%2Fwww.imdb.com%2FREMOVED&psig=AOvVaw2f6fIfMs28RSnPJ7Ow98KS&ust=1575745988682157
 
-   * from web (normal) results
+   From web (normal) results
    https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=9&ved=2ahUKEwiRtOKE8qHmAhULL1AKHXUrACMQFjAIegQIAxAB&url=https%3A%2F%2Fsuperuser.com%2Fquestions%2F183554%2Fhow-to-recover-form-information-for-a-webpage-in-firefox&usg=AOvVaw3o_HBDRNqmzWbz1WQcqjPq
-  */
-})();
+
+ */
