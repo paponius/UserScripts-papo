@@ -84,3 +84,6 @@
 // YYYnoframes
 // ==/UserScript==
 
+// debugger command is added here by TamperMonkey > Settings > Debug scripts
+console.log('tandt.posta.sk.js: DEBUG SCRIPT meta file');
+

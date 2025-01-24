@@ -1,9 +1,30 @@
 /* jshint esversion: 6 */
 
+/* 
+This script will add full tracking link into the browser's URI (omnibox)
+After entering the tracking number, the page will show text: "Odkaz na zásielku" and the following sibling element will have the correct full URI in its content. But this is shown in an iFrame.
+
+This script will register a mutation observer in that iFrame, www.posta.sk, and custom event listener in the main frame tandt.posta.sk.
+When the element containing the full URI appears, an event is fired which is handled in main frame and it will change the URI.
+ */
+
+// should be outside of the isolation function, so DEBUG can be used in functions of script files included before this one.
+var DEBUG = ( GM && GM.info.script.name.indexOf('DEBUG') !== -1 );
 
 (function() {
 'use strict';
-var DEBUG = ( GM && GM.info.script.name.indexOf('DEBUG') !== -1 );
+
+function isIFrame() {
+	if (DEBUG) { console.debug('SCRIPTNAME: host: ', window.location.host); }
+	if (window.top !== window.self) {
+		if (DEBUG) { console.log('SCRIPTNAME: Running in an iFrame'); }
+		return true;
+	}
+	if (DEBUG) { console.log('SCRIPTNAME: Not running in an iFrame'); }
+	return false;
+}
+
+!!isIFrame();
 
 
 // Waiting for this part to appear
@@ -14,18 +35,21 @@ var DEBUG = ( GM && GM.info.script.name.indexOf('DEBUG') !== -1 );
 function regMutationObserver() {
 	var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 	new MutationObserver(mutations => {
-		if (DEBUG) { console.log('tandt.posta.sk.js: regMutationObserver: fired'); }
+		if (DEBUG) { console.count('tandt.posta.sk.js: regMutationObserver: fired'); }
 
 		for (let m of mutations) {
-			if (m.addedNodes.length === 0) { continue; } // looking for added only, not removed
+			if (m.addedNodes.length === 0) { continue; } // looking for added only now, not removed/changed
 
 			let elements = [];
-			for (let par of m.addedNodes) {
-				if (!(par instanceof HTMLElement)) { continue; } // could be #Text, than it will error
-				if (par instanceof HTMLStyleElement) { continue; } // Style does not have children
-				let tmp = par.getElementsByTagName('div');
+			for (let node of m.addedNodes) {
+				// maybe check if not m.target.tagName === "HEAD"
+				if (!(node instanceof HTMLElement)) { continue; } // Processing a #Text node will error
+				if (node instanceof HTMLStyleElement) { continue; } // Style does not have children
+
+				if (node.tagName === 'div') { elements.push(node); }
+				let tmp = node.getElementsByTagName('div');
 				let tmp_arr = Array.prototype.slice.call(tmp); // converts HTMLCollection to regular Array
-				elements = elements.concat(tmp_arr);
+				elements = elements.concat(tmp_arr); // merge two Arrays
 			}
 
 			if (DEBUG && elements.length !== 0) {
@@ -70,13 +94,6 @@ var waitPageReady = function () {
 };
 
 
-if (DEBUG) {
-	console.log('tandt.posta.sk.js: host: ', window.location.host);
-	if (window.top === window.self) { // alternative to determine if in an iframe
-		console.log('tandt.posta.sk.js: window.top === window.self');
-	} else { console.log('tandt.posta.sk.js: window.top !== window.self'); }
-}
-
 switch (window.location.host) {
 	case 'tandt.posta.sk': // main page
 		window.addEventListener ("message", evt => {
@@ -96,5 +113,5 @@ switch (window.location.host) {
 		break;
 }
 
-if (DEBUG) { console.log('tandt.posta.sk.js: ENDED tandt.posta.sk.js'); }
+if (DEBUG) { console.log('tandt.posta.sk.js: ENDED'); }
 })();
