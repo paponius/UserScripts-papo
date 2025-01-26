@@ -68,7 +68,8 @@
 
 //// PROJECT FILES
 // Add local files which you want to debug.
-// @require        file://C:\Users\Papo\Documents\GitHub\papo-userscripts\src\remove_personal_data.js
+// #require        file://C:\Users\Papo\Documents\GitHub\papo-userscripts\src\remove_personal_data.js
+// @require        file:///C:/Users/Papo/Documents/GitHub/papo-userscripts/src/remove_personal_data.js
 
 //// PROJECT.user.js FILE. Chain the production version GM UserScript
 //   As the last @require.
