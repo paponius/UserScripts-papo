@@ -20,7 +20,7 @@
 // template v1.0
 
 // ==UserScript==
-// @name           DEBUG - remove_personal_data
+// @name           DEBUG - obfuscator
 // ZZZ namespace   to avoid conflicts with duplicate names by different authors
 // ZZZ description Describe this script
 // @author         papo
@@ -68,14 +68,14 @@
 
 //// PROJECT FILES
 // Add local files which you want to debug.
-// #require        file://C:\Users\Papo\Documents\GitHub\papo-userscripts\src\remove_personal_data.js
-// @require        file:///C:/Users/Papo/Documents/GitHub/papo-userscripts/src/remove_personal_data.js
+// #require        file://C:\Users\Papo\Documents\GitHub\papo-userscripts\src\obfuscator.js
+// @require        file:///C:/Users/Papo/Documents/GitHub/papo-userscripts/src/obfuscator.js
 
 //// PROJECT.user.js FILE. Chain the production version GM UserScript
 //   As the last @require.
 //   This is not needed if it does not contain any code. the GM header will not be recognized and processed
 //
-// @require        file://C:\Users\Papo\Documents\GitHub\papo-userscripts\GM\remove_personal_data.user.js
+// @require        file://C:\Users\Papo\Documents\GitHub\papo-userscripts\GM\obfuscator.user.js
 
 //// RESOURCES
 // ###resource       extension_pages/options.html file://C:\path\to\file
@@ -91,4 +91,4 @@
 // ==/UserScript==
 
 // "debugger" command is added here by TamperMonkey > Settings > Debug scripts
-console.log('remove_personal_data: DEBUG SCRIPT meta file');
+console.log('obfuscator: DEBUG SCRIPT meta file');

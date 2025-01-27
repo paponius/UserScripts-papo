@@ -8,9 +8,9 @@
 // And the same is with transparency. Included external files can be inspected in GM (or Tamper Monkey) editor in separate tabs.
 
 // ==UserScript==
-// @name         remove_personal_data
+// @name         obfuscator
 // @namespace      YYY
-// @description  remove_personal_data
+// @description  obfuscator
 // @author         papo
 // @version        0.9.0
 // @license        GPLv2
@@ -44,7 +44,7 @@
 
 //// PROJECT FILES
 // #require      http://ponius.com/GM/XXX/XXX.js?v0.9
-// @require      https://github.com/paponius/papo-userscripts/raw/master/src/remove_personal_data.js?v0.9
+// @require      https://github.com/paponius/papo-userscripts/raw/master/src/obfuscator.js?v0.9
 
 // ###resource     sites.json http://www.ponius.com/iel/sites.json
 // ###resource     res/imdb-enhanced-links.css http://www.ponius.com/iel/res/imdb-enhanced-links.css
