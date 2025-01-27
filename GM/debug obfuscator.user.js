@@ -68,14 +68,14 @@
 
 //// PROJECT FILES
 // Add local files which you want to debug.
-// #require        file://C:\Users\Papo\Documents\GitHub\papo-userscripts\src\obfuscator.js
-// @require        file:///C:/Users/Papo/Documents/GitHub/papo-userscripts/src/obfuscator.js
+// #require        file://C:\Users\Papo\Documents\GitHub\UserScripts-papo\src\obfuscator.js
+// @require        file:///C:/Users/Papo/Documents/GitHub/UserScripts-papo/src/obfuscator.js
 
 //// PROJECT.user.js FILE. Chain the production version GM UserScript
 //   As the last @require.
 //   This is not needed if it does not contain any code. the GM header will not be recognized and processed
 //
-// @require        file://C:\Users\Papo\Documents\GitHub\papo-userscripts\GM\obfuscator.user.js
+// @require        file://C:\Users\Papo\Documents\GitHub\UserScripts-papo\GM\obfuscator.user.js
 
 //// RESOURCES
 // ###resource       extension_pages/options.html file://C:\path\to\file

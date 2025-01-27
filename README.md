@@ -1,4 +1,4 @@
-# papo userscripts
+# UserScripts [papo]
 
 
 ## Google I'm Feeling Lucky Redirect Workaround
@@ -8,6 +8,23 @@ Immediately redirects when google prompts 'redirection notice'. Used to circumve
 a mod from: https://greasyfork.org/en/scripts/390770-workaround-for-google-i-m-feeling-lucky-redirect/code
 
 
+## obfuscator
+
+Removes personal information from a web page before it is saved or printed.  
+Data is removed from visible parts, but also from element's attributes and comments.  
+Works nicely with SingleFile, where personal data is hidden only during the save process and restored after save.  
+
+Not fully completed:
+- restore is not yet fully implemented  
+- input dialog is not provided
+- manual action button not present
+
+In SingleFile, Option must by manually enabled: https://github.com/gildas-lormeau/SingleFile/wiki/How-to-execute-a-user-script-before-a-page-is-saved
+
+### Install in GM
+https://github.com/paponius/UserScripts-papo/raw/master/GM/obfuscator.user.js
+
+	
 ## keep alive
 
 Pings a server, to stay logged-in.
@@ -23,7 +40,7 @@ Pings a server, to stay logged-in.
 injected element hovering over the page with a status display/control
 
 ### Install in GM
-https://github.com/paponius/papo-userscripts/raw/master/GM/keepalive.user.js
+https://github.com/paponius/UserScripts-papo/raw/master/GM/keepalive.user.js
 
 
 ## omnibox_uri_update
@@ -42,7 +59,7 @@ and communication between them.
 
 
 ### Install in GM
-https://github.com/paponius/papo-userscripts/raw/master/GM/omnibox_uri_update.user.js
+https://github.com/paponius/UserScripts-papo/raw/master/GM/omnibox_uri_update.user.js
 
 The **omnibox_uri_update.js** does not work with GreaseMonkey, only with alternatives (e.g. TamperMonkey) because of this bug/limitation.
 https://github.com/greasemonkey/greasemonkey/issues/2574

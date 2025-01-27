@@ -7,6 +7,9 @@
    It will search all Nodes of a web page for predefined keyword strings
    and replace them with random characters.
    This is done in text nodes, comments, element attribute's names and values.
+
+   TODO:
+   - Obfuscating value of a property based on its valuename would make sense
  */
 
 
