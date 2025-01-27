@@ -1,18 +1,62 @@
 /* jshint esversion: 6 */
 
-// ping code from: https://stackoverflow.com/questions/849088/using-javascript-for-pinging-a-webapp-to-keep-session-open
+/* 
+   This script keeps extending session on a web page. Disabling auto log off.
+   2023-10 I had problems that it did not work, when the browser tab, or even window was not active, wrote a note in readme:
+   > ! Does not work. Browsers do freeze JS on background Tabs.  
+   > Probably using a service worker would fix the issue.
+   2501 But testing now, it seem to work OK. Maybe browser update?
 
-(function() {
-'use strict';
+   Method 1 (from [1])
+   Using XHR to access the page, or a specific resource.
+
+   Method 2 (from [1])
+   An invisible iFrame, periodically loading the same page inside already loaded page.
+
+   I don't remember what was supposed to be method 3, probably this comment:
+   "use an image that you know exists on the remote server, and check it's height" [1]
+
+   Method 4
+   use Web Worker for timer, so it will not get frozen.
+
+   TODO:
+   state on-off must be stored per domain
+   option to change method
+   option to select an element for 
+
+   [1] https://stackoverflow.com/questions/849088/using-javascript-for-pinging-a-webapp-to-keep-session-open
+ */
+
+
+
 
 var DEBUG = ( GM && GM.info.script.name.indexOf('DEBUG') !== -1 );
 
-if (window.top !== window.self) { // determine if running in an iframe
-	if (DEBUG) { console.log('keepalive.js: Attempted to start in an iFrame'); }
+
+(() => {
+'use strict';
+
+if (DEBUG) { console.log('keepalive.js: GM_info', GM_info); }
+if (DEBUG) { debugger; }
+
+// determine if running in an iframe
+function isIFrame() {
+	if (DEBUG) { console.debug('SCRIPTNAME: host: ', window.location.host); }
+	if (window.top !== window.self) {
+		if (DEBUG) { console.log('SCRIPTNAME: Running in an iFrame'); }
+		return true;
+	}
+	if (DEBUG) { console.log('SCRIPTNAME: Not running in an iFrame'); }
+	return false;
+}
+// alternative is: switch (window.location.host) { case 'DOMAINNAME': // main page
+
+// this shouldn't be needed when @noframes meta is used
+if (isIFrame()) {
+	if (DEBUG) { console.log('SCRIPTNAME: Attempted to start in an iFrame'); }
 	return;
 }
 
-if (DEBUG) { console.log('keepalive.js: GM_info', GM_info); }
 
 const method = 2;
 var minutesRefresh = 14;
@@ -121,7 +165,8 @@ function pinger(onOFF) {
 	if (method === 1) { // not tested
 	    keepAlive = function () {
 	        var httpRequest = new XMLHttpRequest();
-	        httpRequest.open('GET', "/restricted_file_url");
+	        // httpRequest.open('GET', "/restricted_file_url");
+	        httpRequest.open('GET', "/");
 	        httpRequest.send(null);
 	    };
 

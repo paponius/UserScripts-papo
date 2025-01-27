@@ -10,20 +10,20 @@
 // DL from: https://raw.githubusercontent.com/paponius/papo-userscripts/master/GM/keepalive.user.js
 
 // ==UserScript==
-// @name         keepalive (any page)
-// @namespace    http://www.github.com/
-// @description  keep alive
-// @author       papo
-// @version      1.0.6
-// @license      GPLv2
+// @name           keepalive (any page)
+// @namespace      http://www.github.com/
+// @description    keep alive
+// @author         papo
+// @version        1.0.7
+// @license        GPLv2
+// ###icon           https://www.google.com/s2/favicons?sz=64&domain=posta.sk
 
 // phpMyAdmin web admin page
-// @match          *://*/db/index.php*
-
-// XXXicon         
-// @noframes
+// @match          *://*/*
+// #match          *://*/db/index.php*
 
 // @require      https://raw.githubusercontent.com/paponius/papo-userscripts/master/src/keepalive.js
 
-// xxxconnect      *
+// @noframes
+
 // ==/UserScript==

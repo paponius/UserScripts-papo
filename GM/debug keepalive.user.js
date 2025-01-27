@@ -2,7 +2,6 @@
 // There is no JS code here directly, local JS files are included using @require Key.
 // Last 'require' will chain the production version GM user script file.
 // In the chained file, Metadata Block is ignored by GM.
-// ? what about duplicate require? why is not local JS overloaded by server version?
 //
 // This development version file loads local files (file://...), they can be edited without need to copy/paste to GM.
 // There is no need to update ...?v=1.1 for these file://... pseudo links. "file:" files seems to not be cached in TamperMonkey.
@@ -13,33 +12,40 @@
 // Greasemonkey: Seems it can't access "file:" protocol files. There are guides how it is possible, but not since 2017, when extension changed to WebExtension.
 //
 //// Edit this script file
-// Replace all XXXXXX with correct values. (must keep word "DEBUG" somewhere in name, it's presence is detected by a script)
-// Optionally replace YYYYYY with values. Enable Keys by replacing YYY with @
+// Replace XXX for quick start. (NAME must have word "DEBUG" somewhere, its presence is detected by the script)
+// Replace ### as needed.
+// keys starting with ZZZ are useless in this DEBUG version. They are included for description purpose.
 // This file itself can be renamed, but doesn't need to be.
-
-// 23-04 compared to version in GM---IMDb-Large-Images from 21-10. This is file is more actual.
+//
+// template v1.0
 
 // ==UserScript==
 // @name           DEBUG - keepalive (any page)
-// YYY namespace      YYYYYY
-// YYY description    YYYYYY
+// ZZZ namespace   to avoid conflicts with duplicate names by different authors
+// ZZZ description Describe this script
 // @author         papo
-// YYY version        YYYYYY.YYYYYY.YYYYYY  Useless here. Tamper Monkey ignores version change here (because file:?) and does not auto update
-// YYY license        YYYYYY
+// ZZZ version     1.0.0  Useless here. Tamper Monkey ignores version change here (because file:?) and does not auto update
+// ZZZ license     own
+// ###icon           https://www.google.com/s2/favicons?sz=64&domain=example.com
 
-// --- Match Sites
-//   match can not be: http?://,  http*://, *://*.google.*/* (OK: *://*.google.com/*)
-//   doc: https://developer.chrome.com/docs/extensions/mv3/match_patterns/
+//// Match Sites
+// @match          *://*/*
 // @match          *://*/db/index.php*
+//
+// Scheme: "*" matches http and https but not file, ftp, urn. Not valid: "http?", "http*" is in TM doc as valid, but in Google not.
+// Host: "www.google.com", "*.google.com" matches also "google.com", or "*". Not valid: "*.google.*"
+//       "*" can be followed only by a "." or "/", and if used, it must be the first character.
+// Path: "/*", "/foo*", "/foo/bar", "/foo*/*", "/foo*bar". Path must be present. Not sure if "/" is OK.
+// There is no Host in "file:///foo*", URN "urn:*"
 
-// YYYicon         https://www.google.com/s2/favicons?sz=64&domain=example.com
+// ###run-at     document-start
+//
+// all possible: document-start -> document-end (default) -> document-idle
+// tampermonkey has more, but if used in GreaseMonkey, script will silently fail. e.g. document-body
 
-// --- run-at
-//   all possible: document-start -> document-end (default) -> document-idle
-//   tampermonkey has more, but if used in GreaseMonkey, script will silently fail. e.g. document-body
-// @run-at         document-idle
 
-//// Granting everything in this development version.
+//// GRANT - PERMISSIONS
+//   Granting everything in this development version.
 // @grant          GM.getValue
 // @grant          GM.setValue
 // @grant          GM.xmlHttpRequest
@@ -62,25 +68,41 @@
 // Grant directive must correspond to that, but can also specify both old and new.
 // TamperMonkey (v4.13) does not mention GM. or GM object in docs, but it does in "recent changes",
 // probably there is support of these new promise oriented functions too.
+//
+// grant none
+// This will also disable sandbox and GM_ functions, except GM_info property. Probably also unsafeWindow, some window functions.
 
 
-//// Frameworks
-// YYYrequire        https://code.jquery.com/jquery-2.2.0.min.js
-// YYYrequire        http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js
-// YYYrequire        https://greasemonkey.github.io/gm4-polyfill/gm4-polyfill.js
+//// REQUIRE directives. Must be identical to no-debug .user.js file. Use local debuggable or remote files.
 
-//// Project files
+//// FRAMEWORKS
+// ###require        https://code.jquery.com/jquery-2.2.0.min.js
+// ###require        http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js
+// ###require        https://greasemonkey.github.io/gm4-polyfill/gm4-polyfill.js
+
+//// PROJECT FILES
 // Add local files which you want to debug.
-// @require        file://C:\Users\Papo\Documents\GitHub\papo-userscripts\src\keepalive.js
+// @require        XXXXXX e.g. file://C:\Users\Papo\Documents\GitHub\XXX\src\XXX.js
 
-//// Chain the production version GM user script
-//   this is useless if it does not contain any code. the GM header will not be recognized
-// @require        file://C:\Users\Papo\Documents\GitHub\papo-userscripts\GM\keepalive.user.js
+//// PROJECT.user.js FILE. Chain the production version GM UserScript
+//   As the last @require.
+//   This is not needed if it does not contain any code. the GM header will not be recognized and processed
+//
+// @require        XXXXXX e.g. file://C:\Users\Papo\Documents\GitHub\XXX\GM\XXX.user.js
 
-//// Resources. Name could be anything. To keep compatibility with WebExt, use relative path as a name for the resource as it appears in the project. e.g. res/sites.json
-// YYYresource       extension_pages/options.html file://C:\path\to\file
+//// RESOURCES
+// ###resource       extension_pages/options.html file://C:\path\to\file
+//
+// Name of a resource could be anything. To keep compatibility with WebExt, use relative path as a name for the resource as it appears in the project. e.g. res/sites.json
+// ViolentMonkey probably does not like '\' in the path.
 
-// YYYconnect        *
-// YYYnoframes
+// @connect      *
+// Used by GM_xmlhttpRequest. Define more specific values, for user's peace of mind.
+
+// ###noframes
+// UserScript will not run in iFrames
+
 // ==/UserScript==
 
+// "debugger" command is added here by TamperMonkey > Settings > Debug scripts
+console.log('XXX.js: DEBUG SCRIPT meta file');
