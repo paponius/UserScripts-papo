@@ -20,7 +20,7 @@
 // 23-04 compared to version in GM---IMDb-Large-Images from 21-10. This is file is more actual.
 
 // ==UserScript==
-// @name           DEBUG - tandt.posta.sk
+// @name           DEBUG - omnibox_uri_update
 // YYY namespace      YYYYYY
 // YYY description    YYYYYY
 // @author         papo
@@ -71,11 +71,11 @@
 
 //// Project files
 // Add local files which you want to debug.
-// @require        file://C:\Users\Papo\Documents\GitHub\papo-userscripts\src\tandt.posta.sk.js
+// @require        file://C:\Users\Papo\Documents\GitHub\UserScripts-papo\src\omnibox_uri_update.js
 
 //// Chain the production version GM user script
 //   this is useless if it does not contain any code. the GM header will not be recognized
-// @require        file://C:\Users\Papo\Documents\GitHub\papo-userscripts\GM\tandt.posta.sk.user.js
+// @require        file://C:\Users\Papo\Documents\GitHub\UserScripts-papo\GM\omnibox_uri_update.user.js
 
 //// Resources. Name could be anything. To keep compatibility with WebExt, use relative path as a name for the resource as it appears in the project. e.g. res/sites.json
 // YYYresource       extension_pages/options.html file://C:\path\to\file
@@ -85,5 +85,5 @@
 // ==/UserScript==
 
 // debugger command is added here by TamperMonkey > Settings > Debug scripts
-console.log('tandt.posta.sk.js: DEBUG SCRIPT meta file');
+console.log('omnibox_uri_update.js: DEBUG SCRIPT meta file');
 

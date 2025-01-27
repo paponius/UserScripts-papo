@@ -35,7 +35,7 @@ function isIFrame() {
 function regMutationObserver() {
 	var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 	new MutationObserver(mutations => {
-		if (DEBUG) { console.count('tandt.posta.sk.js: regMutationObserver: fired'); }
+		if (DEBUG) { console.count('omnibox_uri_update.js: regMutationObserver: fired'); }
 
 		for (let m of mutations) {
 			if (m.addedNodes.length === 0) { continue; } // looking for added only now, not removed/changed
@@ -53,13 +53,13 @@ function regMutationObserver() {
 			}
 
 			if (DEBUG && elements.length !== 0) {
-				console.log('tandt.posta.sk.js: regMutationObserver: ',m.type , ' | new links:', elements.length, ' | on target: ', m);
+				console.log('omnibox_uri_update.js: regMutationObserver: ',m.type , ' | new links:', elements.length, ' | on target: ', m);
 			}
 
 			for (const el of elements) {
 				if (el.textContent === 'Odkaz na zásielku') {
 					const link = el.nextElementSibling.textContent;
-					if (DEBUG) { console.log('tandt.posta.sk.js: Link: ', link); }
+					if (DEBUG) { console.log('omnibox_uri_update.js: Link: ', link); }
 
 					// add A element, move text into it
 					el.nextElementSibling.textContent = '';
@@ -81,15 +81,15 @@ function regMutationObserver() {
 
 
 var waitPageReady = function () {
-	if (DEBUG) { console.log('tandt.posta.sk.js: START waitPageReady()'); }
+	if (DEBUG) { console.log('omnibox_uri_update.js: START waitPageReady()'); }
 
 	if (document.readyState !== 'complete') {
 		window.addEventListener('load', waitPageReady);
-		if (DEBUG) { console.log('tandt.posta.sk.js: STOP waitPageReady(): page not ready.'); }
+		if (DEBUG) { console.log('omnibox_uri_update.js: STOP waitPageReady(): page not ready.'); }
 		return;
 	}
 
-	if (DEBUG) { console.log('tandt.posta.sk.js: waitPageReady(): page loaded'); }
+	if (DEBUG) { console.log('omnibox_uri_update.js: waitPageReady(): page loaded'); }
 	regMutationObserver();
 };
 
@@ -97,9 +97,9 @@ var waitPageReady = function () {
 switch (window.location.host) {
 	case 'tandt.posta.sk': // main page
 		window.addEventListener ("message", evt => {
-			if (DEBUG) { console.log('tandt.posta.sk.js: message: ', evt); }
+			if (DEBUG) { console.log('omnibox_uri_update.js: message: ', evt); }
 			if (evt.data.operation ===  'fulllink') {
-				if (DEBUG) { console.log('tandt.posta.sk.js: Link received by main page: ', evt.data.data); }
+				if (DEBUG) { console.log('omnibox_uri_update.js: Link received by main page: ', evt.data.data); }
 				history.replaceState(null, document.title, evt.data.data + location.search + location.hash);
 			}				
 		}, false);
@@ -109,9 +109,9 @@ switch (window.location.host) {
 		waitPageReady();
 		break;
 	default:
-		if (DEBUG) { console.error('tandt.posta.sk.js: unexpected domain: ', window.location.host); }
+		if (DEBUG) { console.error('omnibox_uri_update.js: unexpected domain: ', window.location.host); }
 		break;
 }
 
-if (DEBUG) { console.log('tandt.posta.sk.js: ENDED'); }
+if (DEBUG) { console.log('omnibox_uri_update.js: ENDED'); }
 })();

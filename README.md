@@ -10,10 +10,13 @@ a mod from: https://greasyfork.org/en/scripts/390770-workaround-for-google-i-m-f
 
 ## keep alive
 
-> ! Does not work. Browsers do freeze JS on background Tabs.  
-> Probably using a service worker would fix the issue.
-
 Pings a server, to stay logged-in.
+
+> ! 2023 It did not work. Browsers did freeze JS on background Tabs.  
+  2025 It just works OK now. Browser updates maybe.  
+> Still, maybe it will be a good idea to implement service worker with a timeout guard.
+
+
 
 ### Useful re-usable parts
 
@@ -23,9 +26,12 @@ injected element hovering over the page with a status display/control
 https://github.com/paponius/papo-userscripts/raw/master/GM/keepalive.user.js
 
 
-## tandt.posta.sk.js
-Changes plain text with link to real clickable 'A' element
-modifies URI to represent the currently selected tracking
+## omnibox_uri_update
+After some action on a page, the page shows a specific content accessible using a direct URI. But the page does not update its OmniBox (Browser Address Bar) to this direct URI.
+This would fix that. Now such page can be shared, or bookmarked.
+This script is VERY manual.
+Interesting in this solution is, the data is obtained from an iFrame, where it is shown using JS after an action.
+Because of that it needs an MutationObserver and EventListener.
 
 ### Useful re-usable parts
 
@@ -36,7 +42,7 @@ and communication between them.
 
 
 ### Install in GM
-https://github.com/paponius/papo-userscripts/raw/master/GM/tandt.posta.sk.user.js
+https://github.com/paponius/papo-userscripts/raw/master/GM/omnibox_uri_update.user.js
 
-The **tandt.posta.sk.js** does not work with GreaseMonkey, only with alternatives (e.g. TamperMonkey) because of this bug/limitation.
+The **omnibox_uri_update.js** does not work with GreaseMonkey, only with alternatives (e.g. TamperMonkey) because of this bug/limitation.
 https://github.com/greasemonkey/greasemonkey/issues/2574

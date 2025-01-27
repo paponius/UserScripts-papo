@@ -8,9 +8,9 @@
 // And the same is with transparency. Included external files can be inspected in GM (or Tamper Monkey) editor in separate tabs.
 
 // ==UserScript==
-// @name         tandt.posta.sk
-// @namespace    http://www.github.com/tandt.posta.sk/
-// @description  Changes plain text with link on tandt.posta.sk page.
+// @name         omnibox_uri_update
+// @namespace    https://github.com/paponius/
+// @description  Changes plain text with link and URI in omnibox on tandt.posta.sk page.
 // @author       papo
 // @version      1.0.1
 // @license      GPLv2
@@ -21,7 +21,7 @@
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=posta.sk
 // @grant none
 
-// @require      https://github.com/paponius/papo-userscripts/raw/master/src/tandt.posta.sk.js
+// @require      https://github.com/paponius/UserScripts-papo/raw/master/src/omnibox_uri_update.js
 
 // @connect      *
 // ==/UserScript==
