@@ -8,7 +8,7 @@
 // And the same is with transparency. Included external files can be inspected in GM (or Tamper Monkey) editor in separate tabs.
 
 // ==UserScript==
-// @name         omnibox_uri_update
+// @name         Omnibox URI update
 // @namespace    https://github.com/paponius/
 // @description  Changes plain text with link and URI in omnibox on tandt.posta.sk page.
 // @author       papo

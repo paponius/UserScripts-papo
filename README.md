@@ -43,7 +43,7 @@ injected element hovering over the page with a status display/control
 https://github.com/paponius/UserScripts-papo/raw/master/GM/keepalive.user.js
 
 
-## omnibox_uri_update
+## Omnibox URI update
 After some action on a page, the page shows a specific content accessible using a direct URI. But the page does not update its OmniBox (Browser Address Bar) to this direct URI.
 This would fix that. Now such page can be shared, or bookmarked.
 This script is VERY manual.

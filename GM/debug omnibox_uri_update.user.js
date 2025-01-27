@@ -20,7 +20,7 @@
 // 23-04 compared to version in GM---IMDb-Large-Images from 21-10. This is file is more actual.
 
 // ==UserScript==
-// @name           DEBUG - omnibox_uri_update
+// @name           DEBUG - Omnibox URI update
 // YYY namespace      YYYYYY
 // YYY description    YYYYYY
 // @author         papo

@@ -34,36 +34,9 @@ if (DEBUG) {
 
 
 
-(() => { // can't be used if main part is loaded using @require and variables are defined here.
-'use strict'; // could be outside of the function in GM. As scripts are all wrapped in one function
+(() => {
+'use strict';
 
-
-// determine if running in an iframe
-function isIFrame() {
-	if (DEBUG) { console.debug('SCRIPTNAME: host: ', window.location.host); }
-	if (window.top !== window.self) {
-		if (DEBUG) { console.log('SCRIPTNAME: Running in an iFrame'); }
-		return true;
-	}
-	if (DEBUG) { console.log('SCRIPTNAME: Not running in an iFrame'); }
-	return false;
-}
-// alternative is: switch (window.location.host) { case 'DOMAINNAME': // main page
-
-/*
-	if (document.readyState !== 'complete') {
-		window.addEventListener('load', event => changeIcon(icon, type, sizes, event));
-		if (DEBUG) { console.log('changeIcon(): page not ready.'); }
-		return;
-	}
-*/
-/*
-	if (document.readyState !== 'interactive' && document.readyState !== 'complete') {
-		window.addEventListener('DOMContentLoaded', event => changeIcon(icon, type, sizes, event));
-		if (DEBUG) { console.log('changeIcon(): page not ready.'); }
-		return;
-	}
-*/
 
 var SavedElements = [];
 	// todo:rand length - give choice to add [from-to] length for obfus
@@ -105,7 +78,7 @@ function randomStringOpt(length, firstJustLetter = false) {
 	//  CDATA:  <![CDATA[
 	//    probably not needed, as "should not be used within HTML. They are considered comments..."
 	//  
-function hidePropertiesData(element, keys) {
+function obfuscate(element, keys) {
 	var saved = {el: null, prop: [], cont: '' };
 	// type: typePropItem = {nameOrig: '', valueOrig: '', nameFake: ''};
 
@@ -188,19 +161,8 @@ function hidePropertiesData(element, keys) {
 	}
 }
 
-function Xobfuscate(node) {
-	for (let childNode of node.childNodes) {
-		if (! childNode) { debugger; alert('does this happen?'); continue; }
-		// if (childNode.nodeType !== 1) { debugger; }
-		hidePropertiesData(node, Keys);
-
-		if (childNode.childNodes.length > 0) {
-			obfuscate(childNode);
-		}
-	}
-}
-function obfuscate(node) {
-	hidePropertiesData(node, Keys);
+function crawlElement(node) {
+	obfuscate(node, Keys);
 
 	// todo:  should process the content of all element? e.g. a style, TEXT NODE within style element?
 	//        offer Option, 'also include script/style/id/class, for these a random value should be selected on beginning and replacing all instances of one key with the same random
@@ -216,7 +178,7 @@ function obfuscate(node) {
 		// it's a live collection, it will not try to iterate non-existing node
 		// if (! childNode) { debugger; alert('does this happen?'); continue; }
 
-		obfuscate(childNode);
+		crawlElement(childNode);
 	}
 }
 
@@ -239,38 +201,20 @@ while ((currentNode = nodeIterator.nextNode())) {
 
 // using .childNodes will include text nodes and comment nodes, alt getElementsByTagName(), querySelectorAll() would not
 // use document or document.body, depending on the need to check head too
-function filterNodes(node, filter) {
 
-}
-// ---
-// debugger;
 const elements = new Map();
 const removedElementsSelector = "img";
 dispatchEvent(new CustomEvent("single-file-user-script-init"));
 
 addEventListener("single-file-on-before-capture-request", () => {
 	debugger;
-
-    // document.querySelectorAll(removedElementsSelector).forEach(element => {
-    //   const placeHolderElement = document.createElement(element.tagName);
-    //   elements.set(placeHolderElement, element);
-    //   element.parentElement.replaceChild(placeHolderElement, element);
-    // });
-
-	obfuscate(document);
-	// obfuscate(document.body);
-	// obfuscate(unsafeWindow.document);
-	// obfuscate();
+	crawlElement(document);
   });
 
 addEventListener("single-file-on-after-capture-request", () => {
-    // Array.from(elements).forEach(([placeHolderElement, element]) => {
-    //   placeHolderElement.parentElement.replaceChild(element, placeHolderElement);
-    // });
-    // elements.clear();
-  });
-// ---
 
-if (DEBUG) { console.log('<SCRIPTNAME>: ENDED'); }
+});
+
+if (DEBUG) { console.log('obfuscator: ENDED'); }
 
 })();
