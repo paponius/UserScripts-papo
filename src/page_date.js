@@ -11,26 +11,6 @@
 // should be outside of the isolation function, so DEBUG can be used in functions of script files included before this one.
 var DEBUG = ( GM && GM.info.script.name.indexOf('DEBUG') !== -1 );
 
-// todo: get rid of this. the only way, if really needed, is to create a separate JS file for "log()",
-// then click ignore on it in Browser's DevTools.
-//
-// add script name to console output.
-// But the problem is, using filter with script name will in Chrome console
-// hide Error messages originated in TM and browser.
-// Chome console source is shown as:
-// userscript.html?name=DEBUG-<NAME>.user.js&id=5d9cfd47-9d13-4e24-8ad5-a7f1e59a4393:234
-// In Firefox the source is the name of the main script file: socnet.user.js:224:22
-// in chrome, use "userscript" as the filter.
-if (DEBUG) {
-	let scrName = GM.info.script.name.substr(8);
-	var cons = {
-		log: (...args) => console.log('['+scrName+']', ...args),
-		error: (...args) => console.error('['+scrName+']', ...args),
-		count: (arg) => console.count('['+scrName+'] ' + arg)
-	};
-}
-
-
 // IIFE can't be used if project consists of multiple modules-files with shared variables.
 // 'use strict' could be outside of the IIFE in GM. As scripts are all wrapped in one function anyway.
 (() => {
@@ -88,11 +68,11 @@ function getDate() {
 
 	//// from request header
 	var req = new XMLHttpRequest();
-	req.open('GET', document.location, true);
+	req.open('HEAD', document.location, true); // only need header now
+	// req.open('GET', document.location, true);
 	req.send(null);
-	req.onload = () => {
+	/* req.onload = () => {
 		var headers = req.getAllResponseHeaders().toLowerCase();
-		debugger;
 		var bg = (headers.indexOf('last-modified:') + 14);
 		if (bg !== 13) { // -1 + 14
 			datesPage['last-modified'] = headers.substring(bg, headers.indexOf('\n', bg)).trim('');
@@ -100,7 +80,17 @@ function getDate() {
 			// show directly in GM menu
 			const menu_command_heLM = GM_registerMenuCommand("last-modified: " + datesPage['last-modified']);
 		}
-		console.log(headers);
+		// console.log(headers);
+	}; */
+	req.onload = () => {
+		var headerLastModified = req.getResponseHeader("Last-Modified"); // A valid GMTString date or null
+		if (headerLastModified !== null) {
+			datesPage['Last-Modified'] = headerLastModified;
+
+			// show directly in GM menu
+			const menu_command_heLM = GM_registerMenuCommand("Last-Modified: " + datesPage['Last-Modified']);
+		}
+		// console.log(headers);
 	};
 }
 
