@@ -15,7 +15,7 @@
 // @namespace      https://github.com/paponius/
 // @description    obfuscator
 // @author         papo
-// @version        0.9.1
+// @version        1.0.0
 // @license        GPLv2
 // @icon           https://www.shareicon.net/download/2015/09/17/102669_anonymous.ico
 // Icon "anonymous icon", Author: Aha-Soft, DL from: https://www.shareicon.net/anonymous-102669, CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/deed.en)
@@ -29,9 +29,10 @@
 // tampermonkey has more, but if used in GreaseMonkey, script will silently fail. e.g. document-body
 
 //// GRANT - PERMISSIONS
-// @grant        none
+// @grant          GM_registerMenuCommand
 
 //// PROJECT FILES
+// @require        https://github.com/paponius/UserScripts-papo/raw/master/lib/ControlPanel.js
 // @require        https://github.com/paponius/UserScripts-papo/raw/master/src/obfuscator.js?v0.9.1
 
 // ==/UserScript==

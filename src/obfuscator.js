@@ -2,52 +2,64 @@
 
 
 /* 
-   todo change name to web obfuscator
    This script will anonymize a web page before saving or printing it.
    It will search all Nodes of a web page for predefined keyword strings
    and replace them with random characters.
-   This is done in text nodes, comments, element attribute's names and values.
+   This is done in text nodes, comments, element attribute's names and values, and browser's omnibox.
+
+   It's functioning only as a UserScript now, as this file contains GM specific calls (Menu)
+   and as there are no buttons yet to obf/deobf on a Panel.
+   It is fully functional. With limitation to features below in TODO. Some might be one day implemented.
 
    TODO:
+   allow escape ',' in input
+
+   disable input box, while obfuscated?
+
+   add notice panel - saying e.g. 'obfuscated', flashes
+   add status panel - showing if it's now 'obfuscated', watermark
+   add 'obfuscate'/deobf on CP panel
+
+   - limiting obf to URI/text/prop can be useful
+
    - Obfuscating value of a property based on its valuename would make sense
+     i.e. if a property is called Johnny, it's value even if unreadable might be privacy sensitive
+
+   - changes to some elements's properties breaks page: script/style/id/class/ more?
+     make table of substitutes, replace all following occurrences with the same random for these props
+	 or just don't process: style, TEXT NODE within style element?
+
+   - rand length - give choice to add [from-to] length for obfus for each 
+
+   - maybe even node name should be checked
+
+   - Should also check `processing instruction`? or maybe just do the same as with a text node
+	//  attributes
+	//  text nodes
+	//  processing instruction  `<? xxx`
+	//  comments
+	//  CDATA:  `<![CDATA[`
+	//    probably not needed, as "should not be used within HTML. They are considered comments..."
+
+   - enable regex or glob. in text node, just the string itself is replaced. but a user can search just for a part of string to be hidden
  */
 
 
 // should be outside of the isolation function, so DEBUG can be used in functions of script files included before this one.
 var DEBUG = ( GM && GM.info.script.name.indexOf('DEBUG') !== -1 );
 
-// add script name to console output.
-// But the problem is, using filter with script name will in Chrome console
-// hide Error messages originated in TM and browser.
-// Chome console source is shown as:
-// userscript.html?name=DEBUG-<NAME>.user.js&id=5d9cfd47-9d13-4e24-8ad5-a7f1e59a4393:234
-// In Firefox the source is the name of the main script file: socnet.user.js:224:22
-// in chrome, use "userscript" as the filter.
-if (DEBUG) {
-	let scrName = GM.info.script.name.substr(8);
-	var cons = {
-		log: (...args) => console.log('['+scrName+']', ...args),
-		error: (...args) => console.error('['+scrName+']', ...args),
-		count: (arg) => console.count('['+scrName+'] ' + arg)
-	};
-}
-
-
 
 (() => {
 'use strict';
 
-
 var SavedElements = [];
-	// todo:rand length - give choice to add [from-to] length for obfus
-	// todo: enable regex or glob. in text node, just the string itself is replaced. but a user can search just for a part of string to be hidden
-	// 
-var Keys = ['huhu', 'br', 'au', 'zatsdsds'];
-// var Keys = ['huhu', 'ddddddddd', 'animddsds', 'zatsdsds'];
+var SavedURI;
+var isObfuscated = false;
+var isChangedURI = false;
+const KeysDefault = null; // does not make sense now when this is a shared script
+// const KeysDefault = ['huhu', 'br', 'au', 'zatsdsds'];
 
-// in init should check if any is an empty string and remove it, or it will match positive everywhere
-Keys = Keys.filter(item => item !== '');
-
+// Snippet randomStr v1.0
 function randomStr(length) {
 	var rand = '',
 		curRand ;
@@ -68,36 +80,23 @@ function randomStringOpt(length, firstJustLetter = false) {
 	return str;
 }
 
-	// todo:rand length - give choice to add [from-to] length for obfus
-	//  maybe even node name should be checked
-	//  
-	//  attributes
-	//  text nodes
-	//  processing instruction  <? xxx
-	//  comments
-	//  CDATA:  <![CDATA[
-	//    probably not needed, as "should not be used within HTML. They are considered comments..."
-	//  
+
+// attribute names/values are replaced completely, if they contain the key
 function obfuscate(element, keys) {
 	var saved = {el: null, prop: [], cont: '' };
 	// type: typePropItem = {nameOrig: '', valueOrig: '', nameFake: ''};
 
-	// attribute names/values are replaced completely, if they contain the key
 
 	// text nodes don't have attributes, nor a method hasAttributes()
 	// todo: is hasAttributes() necessary?
 	if (element.attributes && element.hasAttributes()) {
-		// can't use let here. no idea why. script will crash.
+		// can't use `let` here. no idea why. script will crash. (Tab crash)
 		for (var attr of element.attributes) {
-			console.log(attr.specified);
-			console.log(attr.name);
-			console.log(attr.value);
-			let test = 'te';
+			// console.log(attr.specified);
+			// let test = 'test'; // but using `let` here is OK
 			keys.forEach(key => {
-				console.log(key);
-				console.log(attr);
-				console.log(test);
-				if (key === '') { return; } // empty string would match everything
+				// console.log(test);
+				if (key === '') { return; } // empty string would match everything (this is already checked before)
 				let valueOrig = null;
 				let nameFake = null;
 				// probably no need to check if name, value exist, but to be on a safe side
@@ -106,8 +105,7 @@ function obfuscate(element, keys) {
 					valueOrig = attr.value;
 					attr.value = randomStr(attr.value.length);
 				}
-				// todo: if the name starts with data- keep that part, or just change the key part?
-				// todo: what about attr, which mod will break page, i.e. id, class, style...?
+				// todo: if the name starts with data- keep that part, or just change the Key part?
 				if (attr.name && attr.name.includes(key)) {
 					nameFake = randomStringOpt(attr.name.length, !!'firstJustLetter');
 					// nameOrig = attr.name;
@@ -124,6 +122,7 @@ function obfuscate(element, keys) {
 	switch (element.nodeType) {
 		// also: style, script, title, body,...
 		case Node.ELEMENT_NODE:
+			// todo: maybe add the above `if` here?
 			// debugger;
 			break;
 		case Node.TEXT_NODE:
@@ -154,7 +153,6 @@ function obfuscate(element, keys) {
 			break;
 	}
 
-	// if (saved.propName.length !== 0 || saved.propValue.length !== 0 || !!saved.cont) {
 	if (saved.prop.length !== 0 || !!saved.cont) {
 		saved.el = element;
 		SavedElements.push(saved);
@@ -162,18 +160,9 @@ function obfuscate(element, keys) {
 }
 
 function crawlElement(node) {
-	obfuscate(node, Keys);
+	obfuscate(node, optKeys.value);
 
-	// todo:  should process the content of all element? e.g. a style, TEXT NODE within style element?
-	//        offer Option, 'also include script/style/id/class, for these a random value should be selected on beginning and replacing all instances of one key with the same random
-	//
-
-	console.log(node.tagName);
-	if (DEBUG && node.tagName == 'BODY') {
-		console.log(node.childNodes);
-		debugger;
-	}
-
+	// .childNodes includes text nodes and comment nodes
 	for (let childNode of node.childNodes) {
 		// it's a live collection, it will not try to iterate non-existing node
 		// if (! childNode) { debugger; alert('does this happen?'); continue; }
@@ -182,7 +171,7 @@ function crawlElement(node) {
 	}
 }
 
-/* method B:
+/* Method B: (maybe todo and compare speed.)
 const nodeIterator = document.createNodeIterator(
   document.body,
   NodeFilter.SHOW_ELEMENT,
@@ -199,22 +188,141 @@ while ((currentNode = nodeIterator.nextNode())) {
 }
  */
 
-// using .childNodes will include text nodes and comment nodes, alt getElementsByTagName(), querySelectorAll() would not
-// use document or document.body, depending on the need to check head too
+// Method C: getElementsByTagName(), querySelectorAll() would not use document or document.body (without head),
+// also it creates static list (not live). But no text nodes. I don't like this method and will not try it here.
 
-const elements = new Map();
-const removedElementsSelector = "img";
+
+function obfuscateOmnibox() {
+
+	///// test
+	// var a = window.location.href;
+	// var a2 = window.location;
+
+	// Note 2012 in FF "property doesn't update after a window.location to an anchor (#),"
+	// Note: If you have a frame, image, or form with name="URL" then this property will be shadowed on the document object
+	// var b = document.URL;
+	// var c = document.baseURI;
+	// var d = history.state; // it's empty if stateObj was not used before
+	const stateObj = { foo: "bar" };
+
+	SavedURI = window.location.href;
+	var changedURI = SavedURI;
+	optKeys.value.forEach(key => {
+		if (!SavedURI.includes(key)) { return; }
+		isChangedURI = true;
+		let rand = randomStr(key.length);
+		changedURI = changedURI.replaceAll(key, rand);
+	});
+	if (isChangedURI) {
+		history.replaceState(stateObj, document.title, changedURI);
+		// test, will it keep #hash and ?query: + location.search + location.hash);
+	}
+}
+
+
+function unObfuscate() {
+	for (let sel of SavedElements) {
+		if (sel.cont) {
+			sel.el = sel.cont;
+		}
+		if (sel.prop.length !== 0) {
+			for (let mod of sel.prop) {
+				if (mod.valueOrig) {
+					sel.el.setAttribute(mod.nameOrig, mod.valueOrig);
+				}
+				if (mod.nameFake) {
+					// both name and value were obfusc., and value was also stored, it was restored above to orig name, just delete
+					if (!mod.valueOrig) {
+						sel.el.setAttribute(mod.nameOrig, sel.el.getAttribute(mod.nameFake));
+					}
+					sel.el.removeAttribute(mod.nameFake);
+				}
+			}
+		}
+	}
+}
+
+function unObfuscateOmnibox() {
+	if (isChangedURI) {
+		console.log(history.state); // it's empty if stateObj was not used before
+		debugger;
+		history.replaceState(null, document.title, SavedURI);
+	}
+}
+
+
 dispatchEvent(new CustomEvent("single-file-user-script-init"));
 
 addEventListener("single-file-on-before-capture-request", () => {
-	debugger;
-	crawlElement(document);
-  });
-
-addEventListener("single-file-on-after-capture-request", () => {
-
+	if (optObfWithSingleFile.value && !isObfuscated) {
+		obfuscateOmnibox();
+		crawlElement(document);
+	}
+	isObfuscated = true; // or set as a result of success
 });
 
-if (DEBUG) { console.log('obfuscator: ENDED'); }
+addEventListener("single-file-on-after-capture-request", () => {
+	if (optObfWithSingleFile.value && isObfuscated) {
+		unObfuscate();
+		unObfuscateOmnibox();
+	}
+	isObfuscated = false; // (also, maybe set as a result of success)
+});
 
+
+//// GM Menu
+// event : MouseEvent | KeyboardEvent
+const menu_command_id_1 = GM_registerMenuCommand("Obfuscate now", event => {
+	if (!isObfuscated) {
+		obfuscateOmnibox();
+		crawlElement(document);
+	}
+	isObfuscated = true; // or set as a result of success
+}, {
+  accessKey: "o",
+  autoClose: true,
+  title: 'Remove personal data from opened web page.'
+});
+const menu_command_id_2 = GM_registerMenuCommand("Restore page - un-obfuscate", event => {
+	if (isObfuscated) {
+		unObfuscate();
+		unObfuscateOmnibox();
+	}
+	isObfuscated = false; // (also, maybe set as a result of success)
+}, {
+  accessKey: "u",
+  autoClose: true,
+  title: 'Undo obfuscation.'
+});
+const menu_command_id_3 = GM_registerMenuCommand("Options", event => {
+	if (ControlPanel.panels[0].hidden) { ControlPanel.panels[0].show();
+	} else { ControlPanel.panels[0].hide(); }
+}, {
+  accessKey: "s",
+  autoClose: false,
+  title: 'Open Options'
+});
+
+
+//// Control Panel
+new ControlPanelWithLocalStorage('paragraph', 'Obfuscate will anonymize a web page<br/>before saving or printing it.');
+
+var optObfWithSingleFile = new ControlPanelWithLocalStorage('checkbox', 'Obfuscate during SingleFile save', true);
+
+var optKeys = new ControlPanelWithLocalStorage('text', 'Filter phrases', KeysDefault);
+optKeys.sanateValue = (value) => {
+	// empty string would match everything
+	return value.filter(item => item !== '');
+};
+optKeys.realizeValue = (value) => {
+	return value.split(',').map(item => item.trim());
+};
+optKeys.unRealizeValue = (value) => {
+	if (Array.isArray(value)) { return value.join(','); }
+		console.warn('[obfuscator.js] bad value');
+	return value;
+};
+
+
+if (DEBUG) { console.log('[obfuscator.js] ENDED'); }
 })();

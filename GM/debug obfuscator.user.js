@@ -46,8 +46,8 @@
 
 //// GRANT - PERMISSIONS
 //   Granting everything in this development version.
-// @grant        none
-
+// #grant        none
+// @grant          GM_registerMenuCommand
 //
 // GreaseMonkey v4 changed all GM_ objects to one GM object (followed by dot and a property)
 // which returns a Promise
@@ -68,6 +68,8 @@
 
 //// PROJECT FILES
 // Add local files which you want to debug.
+// @require        file:///C:/Users/Papo/Documents/GitHub/UserScripts-papo/lib/ControlPanel.js
+//
 // #require        file://C:\Users\Papo\Documents\GitHub\UserScripts-papo\src\obfuscator.js
 // @require        file:///C:/Users/Papo/Documents/GitHub/UserScripts-papo/src/obfuscator.js
 
