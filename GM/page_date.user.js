@@ -14,11 +14,11 @@
 
 
 // ==UserScript==
-// @name           page date
+// @name           Show page date
 // @namespace      https://github.com/paponius/
 // @description    Show date of page's creation.
 // @author         papo
-// @version        0.9.0
+// @version        0.9.1
 // @license        GPLv2
 // ###icon           https://www.google.com/s2/favicons?sz=64&domain=yyy.yy
 

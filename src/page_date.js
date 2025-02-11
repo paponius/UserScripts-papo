@@ -2,7 +2,9 @@
 /* jshint debug: true */
 
 /* 
-   This script ...
+   This script shows the date of a page modification.
+   Now the data is read from request header only, maybe will find some other common places.
+   Today, many pages are dynamically generated and the value just shows current time, or is missing all together.
  */
 
 
@@ -81,21 +83,36 @@ var whenPageReady = (handler, state = 'complete') => {
 
 
 var datesPage = {};
-var req = new XMLHttpRequest();
-req.open('GET', document.location, true);
-req.send(null);
-req.onload = () => {
-	var headers = req.getAllResponseHeaders().toLowerCase();
-	debugger;
-	var bg = (headers.indexOf('last-modified:') + 14);
-	datesPage['last-modified'] = headers.substring(bg, headers.indexOf('\n', bg)).trim('');
 
-	// now only this one directly in GM menu
-	const menu_command_id_1 = GM_registerMenuCommand("last-modified: " + datesPage['last-modified']);
+function getDate() {
 
-	console.log(headers);
-};
+	//// from request header
+	var req = new XMLHttpRequest();
+	req.open('GET', document.location, true);
+	req.send(null);
+	req.onload = () => {
+		var headers = req.getAllResponseHeaders().toLowerCase();
+		debugger;
+		var bg = (headers.indexOf('last-modified:') + 14);
+		if (bg !== 13) { // -1 + 14
+			datesPage['last-modified'] = headers.substring(bg, headers.indexOf('\n', bg)).trim('');
 
+			// show directly in GM menu
+			const menu_command_heLM = GM_registerMenuCommand("last-modified: " + datesPage['last-modified']);
+		}
+		console.log(headers);
+	};
+}
+
+
+//// get date
+const menu_command_id_1 = GM_registerMenuCommand("Show page dates", event => {
+	getDate();
+}, {
+  accessKey: "d",
+  // autoClose: false, // true as the menu does not appear while the menu is open
+  title: 'Try to get dates fro various places of a web page.'
+});
 
 
 })();

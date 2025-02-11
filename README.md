@@ -50,6 +50,16 @@ Test String against String or Regexp pattern, while deducting if inputed pattern
 https://github.com/paponius/UserScripts-papo/raw/master/GM/keepalive.user.js
 
 
+## Show page dates
+Shows the date of a page modification.
+Now the data is read from request header only, maybe will find some other common places.
+Today, many pages are dynamically generated and the value just shows current time, or is missing all together.
+
+
+### Install in GM
+https://github.com/paponius/UserScripts-papo/raw/master/GM/page_date.user.js
+
+
 ## Omnibox URI update
 After some action on a page, the page shows a specific content accessible using a direct URI. But the page does not update its OmniBox (Browser Address Bar) to this direct URI.
 This would fix that. Now such page can be shared, or bookmarked.
