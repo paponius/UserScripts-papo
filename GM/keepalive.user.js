@@ -14,7 +14,7 @@
 // @namespace      http://www.github.com/
 // @description    keep alive
 // @author         papo
-// @version        1.0.7
+// @version        1.1.0
 // @license        GPLv2
 // ###icon           https://www.google.com/s2/favicons?sz=64&domain=posta.sk
 
@@ -22,7 +22,11 @@
 // @match          *://*/*
 // #match          *://*/db/index.php*
 
-// @require      https://raw.githubusercontent.com/paponius/papo-userscripts/master/src/keepalive.js
+// @grant          GM_registerMenuCommand
+
+//// PROJECT FILES
+// @require        https://raw.githubusercontent.com/paponius/UserScripts-papo/master/lib/ControlPanel.js
+// @require        https://raw.githubusercontent.com/paponius/UserScripts-papo/master/src/keepalive.js
 
 // @noframes
 

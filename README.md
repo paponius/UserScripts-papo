@@ -33,11 +33,18 @@ Pings a server, to stay logged-in.
   2025 It just works OK now. Browser updates maybe.  
 > Still, maybe it will be a good idea to implement service worker with a timeout guard.
 
-
+The *URI* accepts both String or Regexp patterns.  
+Multiple patterns (for multiple URI) are separated by a comma.  
+Escape comma with '\'. (not yet implemented)  
+Also possible to escape leading '/' by '\', so it won't be recognized as a regexp,
+but there are very few cases where it would matter.  
+The pattern would have to be accepted as a valid regexp completely,
+meaning it would have to end with '/', or a 'g' or 'c'... preceded by a '/'. (as valid regexp can)
+Non leading '/' must not be escaped.
 
 ### Useful re-usable parts
 
-injected element hovering over the page with a status display/control
+Test String against String or Regexp pattern, while deducting if inputed pattern was meant as a String or Regexp pattern partially by itself.
 
 ### Install in GM
 https://github.com/paponius/UserScripts-papo/raw/master/GM/keepalive.user.js

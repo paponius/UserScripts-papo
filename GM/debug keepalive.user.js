@@ -62,6 +62,7 @@
 // @grant          window.close
 // @grant          window.focus
 // @grant          window.onurlchange
+// @grant          GM_registerMenuCommand
 //
 // GreaseMonkey v4 changed all GM_ objects to one GM object (followed by dot and a property)
 // which returns a Promise
@@ -82,13 +83,14 @@
 
 //// PROJECT FILES
 // Add local files which you want to debug.
-// @require        XXXXXX e.g. file://C:\Users\Papo\Documents\GitHub\XXX\src\XXX.js
+// @require        file://C:\Users\Papo\Documents\GitHub\UserScripts-papo\lib\ControlPanel.js
+// @require        file://C:\Users\Papo\Documents\GitHub\UserScripts-papo\src\keepalive.js
 
 //// PROJECT.user.js FILE. Chain the production version GM UserScript
 //   As the last @require.
 //   This is not needed if it does not contain any code. the GM header will not be recognized and processed
 //
-// @require        XXXXXX e.g. file://C:\Users\Papo\Documents\GitHub\XXX\GM\XXX.user.js
+// @require        file://C:\Users\Papo\Documents\GitHub\UserScripts-papo\GM\keepalive.user.js
 
 //// RESOURCES
 // ###resource       extension_pages/options.html file://C:\path\to\file

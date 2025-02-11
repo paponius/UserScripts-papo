@@ -20,9 +20,20 @@
    use Web Worker for timer, so it will not get frozen.
 
    TODO:
-   state on-off must be stored per domain
-   option to change method
-   option to select an element for 
+    - each URI with its own settings and on-off switch
+    - option to set ping interval for each
+    - option to change method
+    - option to select an element for 
+
+      a line in Options for each new URI
+      with new being added with "add new (+)" button
+      right side of each of them a status light, gray, orange for matched URI but inactive, or green
+      left a combo with choice of a ping mode, next to id an optional text box for uri of pinged resource (for such method which does that), and ending with a checkbox
+
+    - status turned red if a page did go offline anyway, this would be detected by getting a value from a selector. (two text input boxes)
+      - or from a different uri. or even by entering a JS expression. 
+   
+
 
    [1] https://stackoverflow.com/questions/849088/using-javascript-for-pinging-a-webapp-to-keep-session-open
  */
@@ -36,10 +47,14 @@ var DEBUG = ( GM && GM.info.script.name.indexOf('DEBUG') !== -1 );
 (() => {
 'use strict';
 
-if (DEBUG) { console.log('keepalive.js: GM_info', GM_info); }
-if (DEBUG) { debugger; }
+const method = 2;
+var minutesRefresh = 14;
+if (DEBUG) { minutesRefresh = 1; }
 
-// determine if running in an iframe
+// if (DEBUG) { console.log('keepalive.js: GM_info', GM_info); }
+
+
+// Snippet v1.0. determine if running in an iframe
 function isIFrame() {
 	if (DEBUG) { console.debug('SCRIPTNAME: host: ', window.location.host); }
 	if (window.top !== window.self) {
@@ -58,86 +73,20 @@ if (isIFrame()) {
 }
 
 
-const method = 2;
-var minutesRefresh = 14;
-if (DEBUG) { minutesRefresh = 1; }
-
-var statusCur = statusWin('Keep-alive', state => { if (state) { pinger(true); } else { pinger(false); } });
-pinger(statusCur);
-
-
-var initStatusWinDone;
-function statusWin(strMessage, callBack) {
-	var elStatusCtrInput;
-
-	if (! initStatusWinDone) {
-		var elStatusCtrDiv = document.createElement('DIV');
-
-		elStatusCtrInput = document.createElement('INPUT');
-		elStatusCtrInput.type = 'checkbox';
-		elStatusCtrInput.id = 'statusCtr';
-		elStatusCtrInput.name = 'statusCtr';
-
-		var elStatusCtrLabel = document.createElement('LABEL');
-		elStatusCtrLabel.type = 'label';
-		elStatusCtrLabel.htmlFor = "statusCtr";
-		elStatusCtrLabel.innerHTML=strMessage;
-
-		elStatusCtrDiv.style = "position: fixed;right: 5px;top: 5px;color: white;border-width: 0px;border-radius: 5px;background-color: gray;opacity: 0.5; padding-left: 5px;";
-
-		elStatusCtrInput.onclick = function() {
-			if (elStatusCtrInput.checked) { // "checked" represents new/changed value
-				// if callback has no return statement, undefined is returned.
-				if (callBack(true) !== false) { localStorage.setItem('feature745', 'ON'); }
-			} else {
-				if (callBack(false) !== false) { localStorage.setItem('feature745', 'OFF'); }
-			}
-		};
-
-		elStatusCtrDiv.appendChild(elStatusCtrLabel);
-		elStatusCtrDiv.appendChild(elStatusCtrInput);
-
-		// if (document.body) {
-		// 	document.body.appendChild(elStatusCtrDiv);
-		// } else {
-		// 	document.head.parentElement.insertBefore(elStatusCtrDiv, document.head.nextSibling);
-		// }
-
-		// a page could have a frameset instead of <body>, then document.body would target the frameset
-		switch (document.body.tagName.toUpperCase()) {
-			case 'BODY':
-				document.body.appendChild(elStatusCtrDiv);
-				break;
-			case 'FRAMESET':
-				document.body.parentElement.insertBefore(elStatusCtrDiv, document.body);
-				break;
-			default:
-				// statements_def
-				break;
-		}
-
-		if (localStorage.getItem('feature745') === null) { // first-time use, start with enabled
-			localStorage.setItem('feature745', 'ON'); // don't use bool, stores only String
-		}
-	} else {
-		elStatusCtrInput = document.getElementById('statusCtr');
-	}
-	initStatusWinDone = true;
-
-	if(localStorage.getItem('feature745') === 'ON') {
-		elStatusCtrInput.checked = true;
-		return true;
-	} else {
-		elStatusCtrInput.checked = false;
-		return false;
-	}
-}
-
-
-// define e.g.: const method = 2;
-// define e.g.: const minutesRefresh = 14;
 var initPingDone;
 var tm;
+/**
+ * Pings a web server to keep session unexpired. i.e. user is not logged off
+ * @Global/Closure vars/const:
+ *   {1|2|3}   method          what method is used;
+ *   {Number}  minutesRefresh  e.g. 14;
+ *   {Boolean} initPingDone    can be internal. Not pinger's fault if someone wants to run two pingers.
+ *   {timer}   tm              timer, I don't think this should be external var. todo move in function
+ *  
+ * @method pinger
+ * @param  {[type]} onOFF [description]
+ * @return {[type]}       [description]
+ */
 function pinger(onOFF) {
 	var reloadIframe;
 	var keepAlive;
@@ -212,4 +161,90 @@ function pinger(onOFF) {
 } // END function pinger() {
 
 
+//// Snippet testStringOrRegexp v1.0
+// how to detect regex in a String and create a regex from a String
+// some horrific ideas on
+// Here we consider a String starting with '/' to be a regex.
+// Let user escape first '/' with '\', if the String should stay String.
+// Use everything after last '/' as flags.
+// Leave everything else untouched, let `new RegExp` handle or not what user created.
+function testStringOrRegexp(needle,haystack) {
+	var failedAsRegex = false;
+	// charAt can give wrong results for Unicode. Use Array.from:
+	var ar = Array.from(needle);
+	if (ar[0] === '/') {
+		let posLast = ar.lastIndexOf('/');
+		if (posLast === 0) {
+			failedAsRegex = true;
+		} else {
+			let p = ar.slice(1, posLast);
+			let f = ar.slice(posLast + 1);
+			try {
+				let rPatt = new RegExp(p.join(''), f.join(''));
+				if (rPatt.test(haystack)) { return true; }
+			} catch (e) { failedAsRegex = true; }
+		}		
+	}
+	if (ar[0] !== '/' || failedAsRegex) {
+		// Remove escape. If escaped '/' by '\' to avoid recognition of String as a regex.
+		if (ar[0] === '\\' && ar[1] === '/') { needle = needle.substring(1); }
+		if (haystack.includes(needle)) {
+			console.log('[keepalive.js] match ',needle);
+			return true;
+		}
+	}
+}
+
+function isDomainSelected() {
+	var uri = window.location.href;
+	for (let needle of optURIs.value) {
+		if (testStringOrRegexp(needle, uri)) { return true; }
+	}
+	return false;
+}
+
+
+const menu_command_options = GM_registerMenuCommand("Options", event => {
+	if (ControlPanel.panels[0].hidden) { ControlPanel.panels[0].show();
+	} else { ControlPanel.panels[0].hide(); }
+}, {
+  accessKey: "o",
+  autoClose: false,
+  title: 'Open Options'
+});
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+//// Control Panel
+new ControlPanelWithLocalStorage('paragraph', 'Keep-alive<br/>pings a web server to keep user logged in.');
+
+var optKeepAlive = new ControlPanelWithLocalStorage('checkbox', 'Overall Keep-alive', false, state => { if (state) { pinger(true); } else { pinger(false); } });
+var optURIs = new ControlPanelWithLocalStorage('text', 'URIs (string or regexp)');
+optURIs.sanateValue = (value) => {
+	// empty string would match everything
+	return value.filter(item => item !== '');
+};
+optURIs.realizeValue = (value) => {
+	return value.split(',').map(item => item.trim());
+};
+optURIs.unRealizeValue = (value) => {
+	if (Array.isArray(value)) { return value.join(','); }
+		console.warn('[keepalive.js] bad value');
+	return value;
+};
+
+// can't exit early, before ControlPanelWithLocalStorage nor GM_registerMenuCommand,
+// need to check if URI is listed, need to allow GM menu to let user access Options and add a URI.
+if (!isDomainSelected()) { return; }
+
+
+pinger(optKeepAlive.value);
+
+
+
 })();
+
+// ouside of the IIFE wrapper, if code in IIFE "return"-s, this will be still shown
+if (DEBUG) { console.log('[keepalive.js] ENDED'); }
