@@ -80,3 +80,10 @@ https://github.com/paponius/UserScripts-papo/raw/master/GM/omnibox_uri_update.us
 
 The **omnibox_uri_update.js** does not work with GreaseMonkey, only with alternatives (e.g. TamperMonkey) because of this bug/limitation.
 https://github.com/greasemonkey/greasemonkey/issues/2574
+
+
+
+## enable_spellcheck_where_disabled
+
+### Install in GM
+https://github.com/paponius/UserScripts-papo/raw/master/GM/enable_spellcheck_where_disabled.user.js?v0.9
