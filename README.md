@@ -24,10 +24,20 @@ In SingleFile, Option must by manually enabled: https://github.com/gildas-lormea
 ### Install in GM
 https://github.com/paponius/UserScripts-papo/raw/master/GM/obfuscator.user.js
 
-	
+
+## GitHub enhancer
+
+Adds Size to file lists.  
+There are Extensions for this, I just thought it would be simple and wanted to have something small for this. Turns out it wasn't.  
+But my script is still smaller and specially faster, with loading animation, without fragmentation during load and without periodic checks. No setInterval/setTimeout.  
+On the other hand, those extensions support private git and dir size. I did not need it yet, so did not implement it yet.
+
+
 ## keep alive
 
 Pings a server, to stay logged-in.
+
+> ! Note: There is a horrible side-effect with method 2, this would (sometimes?) refresh page and remove unfinished text from forms. Also moves page up to top.
 
 > ! 2023 It did not work. Browsers did freeze JS on background Tabs.  
   2025 It just works OK now. Browser updates maybe.  

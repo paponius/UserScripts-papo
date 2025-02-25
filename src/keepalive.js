@@ -2,16 +2,19 @@
 
 /* 
    This script keeps extending session on a web page. Disabling auto log off.
-   2023-10 I had problems that it did not work, when the browser tab, or even window was not active, wrote a note in readme:
+   2023-10 I had problems that it did not work, when the browser tab, or even window was not active,
+   I wrote a note in readme:
    > ! Does not work. Browsers do freeze JS on background Tabs.  
    > Probably using a service worker would fix the issue.
-   2501 But testing now, it seem to work OK. Maybe browser update?
+   But testing now, 2501 it seems to work OK. Maybe browser update?
 
    Method 1 (from [1])
    Using XHR to access the page, or a specific resource.
 
    Method 2 (from [1])
    An invisible iFrame, periodically loading the same page inside already loaded page.
+todo ! There is a horrible side-effect, this would (sometimes?) refresh page and remove unfinished text from forms. Also moves page up to top.
+   maybe check with document.forms
 
    I don't remember what was supposed to be method 3, probably this comment:
    "use an image that you know exists on the remote server, and check it's height" [1]
@@ -20,6 +23,7 @@
    use Web Worker for timer, so it will not get frozen.
 
    TODO:
+    - method, where cookies are prolonged. long-distance keep-alive, where a site will log off in e.g. 3 months
     - each URI with its own settings and on-off switch
     - option to set ping interval for each
     - option to change method
