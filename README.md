@@ -27,10 +27,17 @@ https://github.com/paponius/UserScripts-papo/raw/master/GM/obfuscator.user.js
 
 ## GitHub enhancer
 
-Adds Size to file lists.  
-There are Extensions for this, I just thought it would be simple and wanted to have something small for this. Turns out it wasn't.  
-But my script is still smaller and specially faster, with loading animation, without fragmentation during load and without periodic checks. No setInterval/setTimeout.  
-On the other hand, those extensions support private git and dir size. I did not need it yet, so did not implement it yet.
+Adds **Size** to file lists.  
+There are Extensions for this, I just thought it would be simple and wanted to have something small for this. Turns out it wasn't. To compare with other available solutions:  
+[+] faster. size shows immediately. No delay browsing GitHub. The same dir-change time as without this.
+[+] animation as other cells on line. Size info is actually usually waiting to show, as it is nicer if it shows together with date and commit msg info.
+[+] without page fragmentation during load
+[+] smaller
+[+] no setInterval/setTimeout
+[+] open source with explanations
+[-] no support of private git (yet)
+[-] no dir sizes (yet)
+[-] no total repo size
 
 
 ## keep alive

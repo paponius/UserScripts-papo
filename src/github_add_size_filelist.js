@@ -3,8 +3,14 @@
 
 
 /* 
+// @name           GitHub enhancer
+// @namespace      https://github.com/paponius/
+// @description    For now, adds size column to filelist on github.com
+// @author         papo
+// @license        CC-BY-SA-4.0
+
    This script reads additional data using GitHub API and injects obtained info in the file list on GitHub.com page.
-   Now it does add size of files.
+   It adds size of files (for now). Size shows together with other info on a line, and there is no overhead by this script from some periodic scanning.
    Maybe later will add also:
    - downloadable link to a file.
    
@@ -27,6 +33,10 @@
 
 
    todo:
+   - long filenames? maybe problem?
+   - limited API requests, handle when over limit. But I ran hundreds in a minute for a test and didn't hit limit.
+     Did not test what will happen. `size = fileInfo.size;` should fail will fileInfo undefined and size will be empty.
+   - @270 little situation. Edge case
    - for long lists, when not all files are shown at once, but 'show more' or similar button must be pressed to load more files.
      did not test yet. could just work as tbody observer might catch it.
    - detect if not on tree/'main page' and do something, at least nothing. i.e. don't try to find, register, exit early.
@@ -45,7 +55,10 @@ var DEBUG = ( GM && GM.info.script.name.indexOf('DEBUG') !== -1 );
 'use strict';
 
 // debugger;
-var fileInfoData; // defined in this main scope, so data will persist until new "page" is detected.
+// todo maybe just keep the data in the promise? don't make fileInfoData global?
+//      Is having a global worth avoiding repeated await on already resolved Promise?
+var fileInfoData, // defined in this main scope, so data will persist until new "page" is detected.
+    promFI = null;
 injectCSS();
 
 
@@ -92,6 +105,7 @@ processPage();
 // Again, only one of these, and just for one run is enough, but will try both and just keep them.
 watchElUpdate(document.body, { querySelector: 'body > [data-turbo-body]' }, () => {
 	console.log('[github_add_size_filelist.js] turbo body re-added observer run');
+	promFI = null;
 	processPage();
 
 	var elTestParentMP = document.querySelector('.Layout-main [data-target="react-partial.reactRoot"]');
@@ -128,7 +142,7 @@ function processPage() {
 function watchElUpdate(elTestParent, match, handler) {
 	new MutationObserver(mutations => {
 		for (let mut of mutations) {
-			if (DEBUG) { console.log('[github_add_size_filelist.js] *** target:', mut.target, mut); }
+			if (DEBUG) { console.debug('[github_add_size_filelist.js] *** target:', mut.target, mut); }
 			for (let node of mut.addedNodes) {
 				// console.log('[observer] Added:', node);
 				if (!node.matches) { continue; } // not HTMLElement (the one below is not needed)
@@ -211,13 +225,18 @@ async function createTD(elTR) {
 	elTDSize.classList.add('react-directory-row-size-cell');
 	elTDMsg.after(elTDSize);
 
-	// put observe here after .after(), so it itself will not trigger the childList update
 	// opt: check if it's already observed (elTDMsg.dataset.observed !== undefined),
 	//  but multiple observers on one element are ignored anyways
 	// when loading finishes, <div> in <td> is re-added. This new div with real data is naked, but has a child with a class.
 	watchElUpdate(elTDMsg, {querySelector: ':has(>.react-directory-commit-message)'}, () => createTD(elTR)); // par. is opt.
 
 	if (isLoading) {
+		// async check if have data for this file, preload if not while GitHub row is loading too
+		const elA = elTR.getElementsByClassName('Link--primary')[0];
+		const fileName = elA.getAttribute('title');
+		// preloadFileInfo(fileName);
+		void getFileInfo(fileName, true);
+
 		if (DEBUG) { console.log('[github_add_size_filelist.js] ... size TD is cloned with loading animation:', isLoading); }
 		return; 
 	}
@@ -230,20 +249,18 @@ async function createTD(elTR) {
 	// alt, get file/dir info from fileinfo object
 	if (elTR.getElementsByClassName('icon-directory').length) { return; } // it's a dir
 
-	// only now get API data, as table should show 'loading' animation while the API is resolved
-
 	// alt: // const elA = elTR.querySelector(':scope .react-directory-filename-cell a');
 	const elA = elTR.getElementsByClassName('Link--primary')[0];
 	// alt // const fileName = elA.textContent;
 	const fileName = elA.getAttribute('title');
-	const fileInfo = await getFileInfo(fileName);
-	const size = fileInfo.size;
+	const fileInfo = await getFileInfo(fileName, false);
+	const size = fileInfo.size; // let it error, this thread ends here anyway
 	elDIVSize.textContent = (size/1024).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' KB';
 	//http://stackoverflow.com/a/17663871/1869660
 	//https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toLocaleString#Parameters
 }
 
-async function getFileInfo(fileName) {
+async function getFileInfo(fileName, preLoad) {
 	// will check current URL on each call, as it might be a "new page" (ReactJS changes <body> and mods window.location)
 	var fileInfo;
 	const uriData = getParsedUriData();
@@ -252,23 +269,49 @@ async function getFileInfo(fileName) {
 	if (fileInfoData) {
 		fileInfo = fileInfoData.find(entry => entry.name === fileName);
 		// check if infoData is from path identical to path of the current url
-		if (!fileInfo?.path.includes(uriData.path)) { fileInfoData = null; }
+		if (DEBUG) { console.debug(`[github_add_size_filelist.js] ... fileInfo.path: ${fileInfo?.path}; uriData.path: ${uriData.path}`); }
+		if (!fileInfo?.path || !(('/'+fileInfo.path).startsWith(uriData.path))) { console.log('... removed'); fileInfoData = null; promFI = null; }
 	}
+	if (DEBUG) { console.log(`[github_add_size_filelist.js] ... getFileInfo(); preload: ${preLoad}; getFileInfo loaded: ${!!fileInfoData}`, fileInfoData, 'PromFI:', promFI); }
+	// todo: there can be "page change", with pending request promise and still empty fileInfoData,
+	//   this will then wait for results of old fiData and will not find a file, or will find namesake from other dir!
 	if (!fileInfoData) {
-		fileInfoData = await getFileInfoData(apiUri).catch( e => console.error('e',e));
-		// fileInfoData.catch( e => console.error('e',e));
+		if (promFI === null || promFI.isRejected) {
+			promFI = getFileInfoData(apiUri); // can't chain catch here, as it will not return modded promise obj.
+			promFI.catch( e => console.error('e',e));
+		}
+		fileInfoData = await promFI; // waits for promise created two lines above, or during earlier run of getFileInfo()
 		fileInfo = fileInfoData.find(entry => entry.name === fileName);
+		if (DEBUG) { console.log(`[github_add_size_filelist.js] fileInfoData written. Path: ${fileInfo?.path}`, fileInfoData); }
 	}
 	return fileInfo;
 }
 
-async function getFileInfoData(apiUri) {
-	return new Promise((resolve, reject) => {
+function getFileInfoData(apiUri) {
+	var isResolved = false,
+	    isRejected = false,
+	    promise = new Promise((resolve, reject) => {
+	    if (DEBUG) { console.log('[github_add_size_filelist.js] fetching fileInfoData'); }
 		fetch(apiUri)
 			.then(response => response.json())
-			.then(json => Array.isArray(json) ? resolve(json) : reject(json))
-			.catch(e => { console.error(e); reject(e); });
+			.then(json => {
+				if (Array.isArray(json)) {
+					isResolved = true;
+					resolve(json);
+				} else {
+					isRejected = true;
+					reject(json);
+				}
+			})
+			.catch(e => { console.error(e); isRejected = true; reject(e); });
 	});
+	Object.defineProperty(promise, 'isResolved', { get() { return isResolved; } });
+	Object.defineProperty(promise, 'isRejected', { get() { return isRejected; } });
+	return promise;
+}
+
+async function preloadFileInfo(fileName) {
+
 }
 
 function getTableEl() {

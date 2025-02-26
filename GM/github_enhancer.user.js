@@ -15,8 +15,8 @@
 // @namespace      https://github.com/paponius/
 // @description    For now, adds size column to filelist on github.com
 // @author         papo
-// @version        1.0.0
-// @license        GPLv2
+// @version        1.0.1
+// @license        CC-BY-SA-4.0
 // @icon           https://www.google.com/s2/favicons?sz=64&domain=github.com
 
 // @match          *://github.com/*
