@@ -54,7 +54,17 @@ var DEBUG = ( GM && GM.info.script.name.indexOf('DEBUG') !== -1 );
 (() => {
 'use strict';
 
+//// experimenting with stopping the script on wrong page
+// function isPageWithFiles() {
+// var loc = getParsedUriData();
 // debugger;
+// debugger;
+
+// if (loc.path !== '/') { return false; }
+// return true;
+// }
+// if (!isPageWithFiles()) { return; }
+
 // todo maybe just keep the data in the promise? don't make fileInfoData global?
 //      Is having a global worth avoiding repeated await on already resolved Promise?
 var fileInfoData, // defined in this main scope, so data will persist until new "page" is detected.
@@ -140,10 +150,18 @@ function processPage() {
  * @return {null}                      No return
  */
 function watchElUpdate(elTestParent, match, handler) {
+	if (DEBUG) { elTestParent.dataset.watchElUpdate = ''; }
 	new MutationObserver(mutations => {
+		var debugShowTargetOnce = false;
 		for (let mut of mutations) {
-			if (DEBUG) { console.debug('[github_add_size_filelist.js] *** target:', mut.target, mut); }
 			for (let node of mut.addedNodes) {
+				if (DEBUG) {
+					if (!debugShowTargetOnce) {
+						console.debug('[github_add_size_filelist.js] *** target:', mut.target);
+						debugShowTargetOnce = true;
+					}
+					console.debug('[github_add_size_filelist.js] ... added node:', node);
+				}
 				// console.log('[observer] Added:', node);
 				if (!node.matches) { continue; } // not HTMLElement (the one below is not needed)
 				// if (!(node instanceof HTMLElement)) { continue; } // Processing a #Text node will error
