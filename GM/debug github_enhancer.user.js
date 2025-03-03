@@ -99,6 +99,7 @@
 // Add local files which you want to debug.
 // 
 // @require        file://H:\Documents\coding\JS\Snippets\MutationObserver\find_mutated_elements.js
+// @require        file://C:\Users\Papo\Documents\GitHub\UserScripts-papo\src\github_warn_leaving_edits.js
 // @require        file://C:\Users\Papo\Documents\GitHub\UserScripts-papo\src\github_add_size_filelist.js
 // @require        file://C:\Users\Papo\Documents\GitHub\UserScripts-papo\src\github_add_author_email.js
 
