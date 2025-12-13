@@ -33,6 +33,8 @@
 
 
    todo:
+   - page change from github.com/A to github.com/B: e.g. uMatrix link on bottom https://github.com/uBlockOrigin/uBOL-home/wiki/Frequently-asked-questions-(FAQ)
+   - page change from an .md file not in the root to a dir. Not only when first opened on md, but dir>md>dir too
    - long filenames? maybe problem?
    - limited API requests, handle when over limit. But I ran hundreds in a minute for a test and didn't hit limit.
      Did not test what will happen. `size = fileInfo.size;` should fail will fileInfo undefined and size will be empty.
