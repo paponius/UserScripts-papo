@@ -1,14 +1,14 @@
-# UserScripts [papo]
+A collection of smaller UserScripts.  
+(These scripts will be moved, each into a separate repository. Using one repository for multiple independent scripts did not prove to be a good idea. Keep in mind, when installing from here, the update link will change.)
 
-
-## Google I'm Feeling Lucky Redirect Workaround
+# Google I'm Feeling Lucky Redirect Workaround
 
 Immediately redirects when google prompts 'redirection notice'. Used to circumvent google pestering you when querying with I'm Feeling Lucky feature.
 
-a mod from: https://greasyfork.org/en/scripts/390770-workaround-for-google-i-m-feeling-lucky-redirect/code
+[a mod from workaround-for-google-i-m-feeling-lucky-redirect](https://greasyfork.org/en/scripts/390770-workaround-for-google-i-m-feeling-lucky-redirect/code)
 
 
-## obfuscator
+# obfuscator
 
 Removes personal information from a web page before it is saved or printed.  
 Data is removed from visible parts, but also from element's attributes and comments.  
@@ -21,11 +21,10 @@ Not fully completed:
 
 In SingleFile, Option must by manually enabled: https://github.com/gildas-lormeau/SingleFile/wiki/How-to-execute-a-user-script-before-a-page-is-saved
 
-### Install in GM
-https://github.com/paponius/UserScripts-papo/raw/master/GM/obfuscator.user.js
+### [*Monkey UserScript](https://github.com/paponius/UserScripts-papo/raw/master/GM/obfuscator.user.js)
 
 
-## GitHub enhancer
+# GitHub enhancer
 
 Adds **Size** to file lists.  
 There are Extensions for this, I just thought it would be simple and wanted to have something small for this. Turns out it wasn't. To compare with other available solutions:  
@@ -40,7 +39,7 @@ There are Extensions for this, I just thought it would be simple and wanted to h
 [-] no total repo size
 
 
-## keep alive
+# keep alive
 
 Pings a server, to stay logged-in.
 
@@ -67,7 +66,7 @@ Test String against String or Regexp pattern, while deducting if inputed pattern
 https://github.com/paponius/UserScripts-papo/raw/master/GM/keepalive.user.js
 
 
-## Show page dates
+# Show page dates
 Shows the date of a page modification.
 Now the data is read from request header only, maybe will find some other common places.
 Today, many pages are dynamically generated and the value just shows current time, or is missing all together.
@@ -77,7 +76,7 @@ Today, many pages are dynamically generated and the value just shows current tim
 https://github.com/paponius/UserScripts-papo/raw/master/GM/page_date.user.js
 
 
-## Omnibox URI update
+# Omnibox URI update
 After some action on a page, the page shows a specific content accessible using a direct URI. But the page does not update its OmniBox (Browser Address Bar) to this direct URI.
 This would fix that. Now such page can be shared, or bookmarked.
 This script is VERY manual.
